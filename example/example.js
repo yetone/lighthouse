@@ -6,12 +6,12 @@ window.onload = function() {
     ['^/string/(\\d+)', stringHandler]
   ];
 
+  var area = document.getElementById('exp');
   router(routers);
 
-  var area = document.getElementById('exp');
   function homeHandler(request) {
     console.log('homeHandler');
-    area.innerHTML = '<div>I am in homeHandler now!</div>';
+    area.innerHTML = '<div>I am in homeHandler now!</div><div>params: ' + JSON.stringify(request.params) + '</div>';
   }
 
   function topicLikeHandler(request, id) {

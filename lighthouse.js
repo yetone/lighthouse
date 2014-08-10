@@ -1,16 +1,27 @@
 ;(function(window, undefind) {
   window.router = function(routerPairs) {
+    var supportHashChange = 'onhashchange' in window;
     String.prototype.startsWith = function(str) {
       return this.indexOf(str) === 0;
     };
 
+    function getHash() {
+      if (!supportHashChange) {
+        return window.location.href.replace(/^[^#]#?(.*)$/, '$1');
+      }
+      var hash = window.location.hash;
+      if (hash.startsWith('#')) {
+        hash = hash.substr(1);
+      }
+      return hash;
+    }
+
     function onHashChange(cbk) {
-      if ('onhashchange' in window) {
+      var hash = getHash();
+      cbk.call(cbk, hash);
+      if (supportHashChange) {
         return window.onhashchange = function() {
-          var hash = window.location.hash;
-          if (hash.startsWith('#')) {
-            hash = hash.substr(1);
-          }
+          var hash = getHash();
           cbk.call(cbk, hash);
         };
       }
@@ -18,7 +29,7 @@
       window.setInterval(function() {
         if (window.___href___ !== window.location.href) {
           window.__href__ = window.location.href;
-          var hash = window.location.href.replace(/^[^#]#?(.*)$/, '$1');
+          var hash = getHash();
           cbk.call(cbk, hash);
         }
       }, 50);
@@ -40,7 +51,8 @@
       index = hash.indexOf('?');
       if (index < 0) {
         return {
-          path: hash
+          path: hash,
+          params: params
         };
       }
       path = hash.substr(0, index);

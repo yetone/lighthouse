@@ -1,4 +1,4 @@
-;(function(window, undefind) {
+;(function(window, undefined) {
   window.router = function(routerPairs) {
     var supportHashChange = 'onhashchange' in window;
     String.prototype.startsWith = function(str) {
@@ -20,10 +20,11 @@
       var hash = getHash();
       cbk.call(cbk, hash);
       if (supportHashChange) {
-        return window.onhashchange = function() {
+        window.onhashchange = function() {
           var hash = getHash();
           cbk.call(cbk, hash);
         };
+        return;
       }
       window.___href___ = window.location.href;
       window.setInterval(function() {

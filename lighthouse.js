@@ -1,88 +1,85 @@
 ;(function(window, undefined) {
-  window.router = function(routerPairs) {
-    var supportHashChange = 'onhashchange' in window;
-    String.prototype.startsWith = function(str) {
-      return this.indexOf(str) === 0;
-    };
-
-    function getHash() {
-      if (!supportHashChange) {
-        return window.location.href.replace(/^[^#]#?(.*)$/, '$1');
-      }
-      var hash = window.location.hash;
-      if (hash.startsWith('#')) {
-        hash = hash.substr(1);
-      }
-      return hash;
+  function getHash() {
+    if (!supportHashChange) {
+      return window.location.href.replace(/^[^#]#?(.*)$/, '$1');
     }
-
-    function onHashChange(cbk) {
-      var hash = getHash();
-      cbk.call(cbk, hash);
-      if (supportHashChange) {
-        window.onhashchange = function() {
-          var hash = getHash();
-          cbk.call(cbk, hash);
-        };
-        return;
-      }
-      window.___href___ = window.location.href;
-      window.setInterval(function() {
-        if (window.___href___ !== window.location.href) {
-          window.__href__ = window.location.href;
-          var hash = getHash();
-          cbk.call(cbk, hash);
-        }
-      }, 50);
+    var hash = window.location.hash;
+    if (hash.charAt(0) === '#') {
+      hash = hash.substr(1);
     }
+    return hash;
+  }
 
-    function getRequest(hash) {
-      var params = {},
-          kvPair = [],
-          partList,
-          path,
-          query,
-          part,
-          key,
-          value,
-          index;
-      if (hash.startsWith('#')) {
-        hash = hash.substr(1);
+  function onHashChange(cbk) {
+    var hash = getHash();
+    cbk.call(cbk, hash);
+    if (supportHashChange) {
+      window.onhashchange = function() {
+        var hash = getHash();
+        cbk.call(cbk, hash);
+      };
+      return;
+    }
+    window.___href___ = window.location.href;
+    window.setInterval(function() {
+      if (window.___href___ !== window.location.href) {
+        window.__href__ = window.location.href;
+        var hash = getHash();
+        cbk.call(cbk, hash);
       }
-      index = hash.indexOf('?');
-      if (index < 0) {
-        return {
-          path: hash,
-          params: params
-        };
-      }
-      path = hash.substr(0, index);
-      query = hash.substr(index + 1);
-      partList = query.split('&');
+    }, 50);
+  }
 
-      for (var i = 0, l = partList.length; i < l; i++) {
-        part = partList[i];
-        kvPair = part.split('=');
-        switch (kvPair.length) {
-          case 1:
-            key = kvPair[0];
-            value = null;
-            break;
-          case 2:
-            key = kvPair[0];
-            value = kvPair[1];
-            break;
-          default:
-            continue;
-        }
-        params[key] = value;
-      }
-
+  function getRequest(hash) {
+    var params = {},
+        kvPair = [],
+        partList,
+        path,
+        query,
+        part,
+        key,
+        value,
+        index;
+    if (hash.charAt(0) === '#') {
+      hash = hash.substr(1);
+    }
+    index = hash.indexOf('?');
+    if (index < 0) {
       return {
-        path: path,
+        path: hash,
         params: params
       };
     }
+    path = hash.substr(0, index);
+    query = hash.substr(index + 1);
+    partList = query.split('&');
+
+    for (var i = 0, l = partList.length; i < l; i++) {
+      part = partList[i];
+      kvPair = part.split('=');
+      switch (kvPair.length) {
+        case 1:
+          key = kvPair[0];
+          value = null;
+          break;
+        case 2:
+          key = kvPair[0];
+          value = kvPair[1];
+          break;
+        default:
+          continue;
+      }
+      params[key] = value;
+    }
+
+    return {
+      path: path,
+      params: params
+    };
+  }
+
+  window.router = function(routerPairs) {
+    var supportHashChange = 'onhashchange' in window;
 
     onHashChange(function(hash) {
       var request = getRequest(hash),
@@ -92,10 +89,6 @@
           pair,
           router,
           handler;
-
-      if (!path) {
-        return;
-      }
 
       for (var i = 0, l = routerPairs.length; i < l; i++) {
         pair = routerPairs[i];
@@ -110,6 +103,7 @@
         }
         args.push.apply(args, match.slice(1));
         handler.apply(handler, args);
+        break;
       }
     });
   };

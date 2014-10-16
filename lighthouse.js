@@ -90,6 +90,10 @@
           router,
           handler;
 
+      if (typeof path !== 'string') {
+        return;
+      }
+
       for (var i = 0, l = routerPairs.length; i < l; i++) {
         pair = routerPairs[i];
         router = pair[0];

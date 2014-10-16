@@ -9,6 +9,7 @@
     if (hash.charAt(0) === '#') {
       hash = hash.substr(1);
     }
+    if (hash === '') hash = '/';
     return hash;
   }
 

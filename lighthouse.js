@@ -1,4 +1,6 @@
 ;(function(window, undefined) {
+  var supportHashChange = 'onhashchange' in window;
+
   function getHash() {
     if (!supportHashChange) {
       return window.location.href.replace(/^[^#]#?(.*)$/, '$1');
@@ -79,8 +81,6 @@
   }
 
   window.router = function(routerPairs) {
-    var supportHashChange = 'onhashchange' in window;
-
     onHashChange(function(hash) {
       var request = getRequest(hash),
           path = request.path,

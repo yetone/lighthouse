@@ -77,10 +77,7 @@
 
     return {
       path: path,
-      params: params,
-      isCurrent: function() {
-        return getHash() === path;
-      }
+      params: params
     };
   }
 

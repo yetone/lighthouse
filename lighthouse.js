@@ -49,6 +49,7 @@
     index = hash.indexOf('?');
     if (index < 0) {
       return {
+        hash: hash,
         path: hash,
         params: params
       };
@@ -76,40 +77,64 @@
     }
 
     return {
+      hash: hash,
       path: path,
       params: params
     };
   }
 
-  window.router = function(routerPairs) {
-    onHashChange(function(hash) {
-      var request = getRequest(hash),
-          path = request.path,
-          args = [request],
-          match,
-          pair,
-          router,
-          handler;
+  window.LightHouse = function() {
+    function LightHouse(opt) {
+      opt = opt || {};
+      this.before = opt.before;
+      this.after = opt.after;
+    }
+    var proto = LightHouse.prototype;
 
-      if (typeof path !== 'string') {
-        return;
-      }
+    proto.setBefore = function(before) {
+      this.before = before;
+    };
+    proto.setAfter = function(after) {
+      this.after = after;
+    };
+    proto.getHash = getHash;
+    proto.route = function(routerPairs) {
+      var self = this;
+      onHashChange(function(hash) {
+        var request = getRequest(hash),
+            path = request.path,
+            args = [request],
+            match,
+            pair,
+            router,
+            handler;
 
-      for (var i = 0, l = routerPairs.length; i < l; i++) {
-        pair = routerPairs[i];
-        router = pair[0];
-        handler = pair[1];
-        if (typeof router === 'string') {
-          router = new RegExp(router);
+        if (typeof path !== 'string') {
+          return;
         }
-        match = path.match(router);
-        if (!match) {
-          continue;
+
+        for (var i = 0, l = routerPairs.length; i < l; i++) {
+          pair = routerPairs[i];
+          router = pair[0];
+          handler = pair[1];
+          if (typeof router === 'string') {
+            router = new RegExp(router);
+          }
+          match = path.match(router);
+          if (!match) {
+            continue;
+          }
+          args.push.apply(args, match.slice(1));
+          var go = true;
+          if (typeof self.before === 'function') {
+            go = self.before.apply(self.before, args);
+          }
+          go !== false && handler.apply(handler, args);
+          typeof self.after === 'function' && self.after.apply(self.after, args);
+          break;
         }
-        args.push.apply(args, match.slice(1));
-        handler.apply(handler, args);
-        break;
-      }
-    });
-  };
+      });
+    };
+    return LightHouse;
+  }();
 })(window);

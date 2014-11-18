@@ -7,7 +7,7 @@ window.onload = function() {
   ];
 
   var area = document.getElementById('exp');
-  router(routers);
+  (new LightHouse).route(routers);
 
   function homeHandler(request) {
     console.log('homeHandler');
